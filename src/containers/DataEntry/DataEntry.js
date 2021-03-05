@@ -8,9 +8,16 @@ import { Table } from 'antd';
 
 class DataEntry extends Component {
     state = {
-        year: 2017,
-        month: 1,
-        day: 1,
+        date_i:{
+            year: "2017" ,
+            month: "01",
+            day: "01"
+        } ,
+        date_f:{
+            year: null,
+            month: null,
+            day: null
+        } ,
         loading: false,
         jornada: false,
         reforma: false,
@@ -70,13 +77,14 @@ class DataEntry extends Component {
             });
     }
 
-    dateChangeHandler = (event) => {
-        const date = event.target.value.split('-');
-        this.setState({
-            year:date[0],
-            month:date[1],
-            day:date[2]
-        });
+    dateChangeHandler = (fechas) => {
+        console.log(`inicio: ${fechas[0].format().split("T")[0]}\n final: ${fechas[1].format().split("T")[0]}`);
+        // const date = event.target.value.split('-');
+        // this.setState({
+        //     year:date[0],
+        //     month:date[1],
+        //     day:date[2]
+        // });
     }
 
     render(){
@@ -84,7 +92,6 @@ class DataEntry extends Component {
         let form = (
             <div>
                 <DateControl min='2017' val={currVal} change={this.dateChangeHandler}>Fecha</DateControl>
-                <br></br>
                 <PressControl checked={this.state.jornada} change={this.jornadaChangeHandler}>Jornada</PressControl>
                 <PressControl checked={this.state.reforma} change={this.reformaChangeHandler}>Reforma</PressControl>
                 <Button clicked={this.submitClickHandler} disabled={!(this.state.jornada || this.state.reforma)}></Button>
