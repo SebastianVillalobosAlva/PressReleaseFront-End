@@ -6,18 +6,12 @@ import Button from '../../components/UI/Button/Button';
 import axios from '../../axios-notes';
 import { Table } from 'antd';
 
+import classes from './DataEntry.module.css';
+
 class DataEntry extends Component {
     state = {
-        date_i:{
-            year: "2017" ,
-            month: "01",
-            day: "01"
-        } ,
-        date_f:{
-            year: null,
-            month: null,
-            day: null
-        } ,
+        fecha_i: "2017-01-01",
+        fecha_f: "",
         loading: false,
         jornada: false,
         reforma: false,
@@ -34,13 +28,13 @@ class DataEntry extends Component {
 
     submitClickHandler = () => {
         this.setState({loading:true});
-        const fecha = {
-            "year":this.state.year,
-            "month":this.state.month,
-            "day":this.state.day
+        const data = {
+            'fecha_i': this.state.fecha_i,
+            'fecha_f': this.state.fecha_f,
+            'Jornada': this.state.jornada,
+            'Reforma': this.state.reforma
         }
-
-        axios.post("/notas",fecha)
+        axios.post("/notas",data)
             .then(response => {
                 //console.log(response.data);
                 const cols = [];
@@ -78,34 +72,35 @@ class DataEntry extends Component {
     }
 
     dateChangeHandler = (fechas) => {
-        console.log(`inicio: ${fechas[0].format().split("T")[0]}\n final: ${fechas[1].format().split("T")[0]}`);
-        // const date = event.target.value.split('-');
-        // this.setState({
-        //     year:date[0],
-        //     month:date[1],
-        //     day:date[2]
-        // });
+        console.log(fechas);
+        if(fechas !== null) {
+            //console.log(`inicio: ${fechas[0].format().split("T")[0]}\n final: ${fechas[1].format().split("T")[0]}`);
+            const dateI = fechas[0].format().split("T")[0];
+            const dateF = fechas[1].format().split("T")[0];
+            this.setState({
+                fecha_i: dateI,
+                fecha_f: dateF
+            })
+        }
     }
 
-    render(){
-        const currVal = [this.state.year,this.state.month,this.state.day].join('-');
+    render() {
         let form = (
-            <div>
-                <DateControl min='2017' val={currVal} change={this.dateChangeHandler}>Fecha</DateControl>
-                <PressControl checked={this.state.jornada} change={this.jornadaChangeHandler}>Jornada</PressControl>
-                <PressControl checked={this.state.reforma} change={this.reformaChangeHandler}>Reforma</PressControl>
-                <Button clicked={this.submitClickHandler} disabled={!(this.state.jornada || this.state.reforma)}></Button>
+            <div className={classes.Form}>
+                <div><DateControl min='2017' change={this.dateChangeHandler}>Fecha</DateControl></div>
+                <div><PressControl checked={this.state.jornada} change={this.jornadaChangeHandler}>Jornada</PressControl>
+                <PressControl checked={this.state.reforma} change={this.reformaChangeHandler}>Reforma</PressControl></div>
+                <div><Button clicked={this.submitClickHandler} disabled={!(this.state.jornada || this.state.reforma)}></Button></div>
             </div>
         );
         if (this.state.loading) form = <Spinner/>
 
         return (
-            <div>
-                <h2>Selecciona las caracteristicas de tu busqueda</h2>
-                {form}
-                <p>{this.state.year}</p>
-                <p>{this.state.month}</p>
-                <p>{this.state.day}</p>
+            <div className={classes.DataEntry}>
+                <fieldset>
+                    <legend>Selecciona las caracteristicas de tu busqueda</legend>
+                    {form}
+                </fieldset>
                 {this.state.notas===null?null:(
                     <Table dataSource={this.state.notas.dataSource} columns={this.state.notas.columns}/>
                 )}

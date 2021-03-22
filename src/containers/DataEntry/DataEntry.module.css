@@ -1,0 +1,21 @@
+.DataEntry {
+    border: 2px solid black;
+    width: 75%;
+    margin: auto;
+    border-radius: 10px;
+    padding: 2em;
+    margin-top: 25px;
+}
+.DataEntry legend {
+    font-weight: bold;
+}
+.Form {
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+.Form > div {
+    padding: 1em;
+}
