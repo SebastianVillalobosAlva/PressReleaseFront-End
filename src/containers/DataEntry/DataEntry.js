@@ -15,7 +15,9 @@ class DataEntry extends Component {
         loading: false,
         jornada: false,
         reforma: false,
-        notas: null
+        notas: null,
+        deleted: false,
+        deletedMessage: ""
     }
 
     jornadaChangeHandler = (event) => {
@@ -61,7 +63,8 @@ class DataEntry extends Component {
                     notas:{
                         columns:cols,
                         dataSource:rows
-                    }
+                    },
+                    deleted: false
                 })
                 console.log(this.state.notas.dataSource);
             })
@@ -84,13 +87,74 @@ class DataEntry extends Component {
         }
     }
 
+    deleteHandler = () => {
+        axios.post("/delete-notas",{})
+            .then(response => {
+                const message = response.data;
+                this.setState({
+                    deleted: true,
+                    deletedMessage: message
+                })
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    }
+
+    seeAllHandler = () => {
+        this.setState({loading:true});
+        axios.post("/read-notas",{})
+            .then(response => {
+                //console.log(response.data);
+                const cols = [];
+                const rows = [];
+                response.data.columns.forEach((col,index)=>{
+                    cols.push({
+                        title: col,
+                        dataIndex:col.toLowerCase(),
+                        key:col.toLowerCase()
+                    })
+                });
+                console.log(cols);
+                response.data.data.forEach((row,index)=>{
+                    let newRow = {key:index+1};
+                    row.forEach((elem,index)=> {
+                        //console.log(cols[index]);
+                        newRow[cols[index].key] = elem;
+                    });
+                    rows.push(newRow);
+                });
+                console.log(rows);
+                this.setState({
+                    loading:false,
+                    notas:{
+                        columns:cols,
+                        dataSource:rows
+                    },
+                    deleted: false
+                })
+                console.log(this.state.notas.dataSource);
+            })
+            .catch(err => {
+                this.setState({loading:false});
+                console.log(err);
+            });
+    }
+
     render() {
         let form = (
             <div className={classes.Form}>
                 <div><DateControl min='2017' change={this.dateChangeHandler}>Fecha</DateControl></div>
                 <div><PressControl checked={this.state.jornada} change={this.jornadaChangeHandler}>Jornada</PressControl>
                 <PressControl checked={this.state.reforma} change={this.reformaChangeHandler}>Reforma</PressControl></div>
-                <div><Button clicked={this.submitClickHandler} disabled={!(this.state.jornada || this.state.reforma)}></Button></div>
+                <div>
+                    <Button clicked={this.submitClickHandler} disabled={!(this.state.jornada || this.state.reforma)}></Button>
+                    <div className={classes.Button} onClick={this.deleteHandler}>Borrar</div>
+                    <div className={classes.Button} onClick={this.seeAllHandler}>Ver todas</div>
+                </div>
+                {this.state.deleted ? (<div className={classes.Cleared}>
+                    <h4>{this.state.deletedMessage}</h4>
+                </div>) : null}
             </div>
         );
         if (this.state.loading) form = <Spinner/>
